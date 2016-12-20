@@ -1,0 +1,12 @@
+[package]
+name = "rust-cowsay"
+version = "0.1.0"
+authors = ["Matt Smith <matthew.smith491@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+clap = "~2.19.2"
+
+[[bin]]
+name = "cowthink"
+path = "src/main.rs"
