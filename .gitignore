@@ -1,0 +1,3 @@
+target/*
+rust-embed/*
+*.lock
