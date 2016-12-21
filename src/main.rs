@@ -1,8 +1,12 @@
 extern crate clap;
+extern crate rand;
 
 use std::str;
 use std::env;
+use std::io::{self, Read};
+use std::fs::File;
 use clap::{App, Arg};
+use rand::{thread_rng, sample};
 
 mod assets;
 
@@ -18,19 +22,28 @@ struct CowBubble {
     botright: &'static str,
 }
 
-fn format_animal(s: String, thoughts: &str, tongue: &str) -> String {
+
+fn list_cows() -> Vec<String> {
+    assets::list()
+        .iter()
+        .map(|x| x.split("/").last().unwrap().replace(".cow", ""))
+        .collect::<Vec<String>>()
+}
+
+fn format_animal(s: String, thoughts: &str, eyes: &str, tongue: &str) -> String {
     s.split("\n")
         .filter(|&x| !x.starts_with("##") && !x.contains("EOC"))
         .collect::<Vec<_>>()
         .join("\n")
-        .replace("$eyes", "oo")
+        .trim_right()
+        .replace("$eyes", eyes)
         .replace("$thoughts", thoughts)
         .replace("$tongue", tongue)
         .replace("\\\\", "\\")
         .replace("\\@", "@")
 }
 
-fn make_bubble(s: String, width: usize, think: bool) -> String {
+fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
     let mut result = Vec::new();
     let mut top = vec![" "];
     let mut bottom = vec![" "];
@@ -65,27 +78,29 @@ fn make_bubble(s: String, width: usize, think: bool) -> String {
 
     // Linewrap
     let mut index = 0;
-    loop {
-        if index + width >= s.len() {
-            break;
-        }
+    if wrap {
+        loop {
+            if index + width >= s.len() {
+                break;
+            }
 
-        let localwidth;
-        let mut subindex = index + width;
-        'b: loop {
-            match (&s[index .. subindex]).ends_with(" ") {
-                true => {
-                    localwidth = subindex - index;
-                    break 'b;
-                }
-                false => {
-                    subindex -= 1;
+            let localwidth;
+            let mut subindex = index + width;
+            'b: loop {
+                match (&s[index .. subindex]).ends_with(" ") {
+                    true => {
+                        localwidth = subindex - index;
+                        break 'b;
+                    }
+                    false => {
+                        subindex -= 1;
+                    }
                 }
             }
+            let slice = &s[index .. index + localwidth];
+            result.push(slice.to_string());
+            index += localwidth;
         }
-        let slice = &s[index .. index + localwidth];
-        result.push(slice.to_string());
-        index += localwidth;
     }
     let slice = &s[index .. ];
     result.push(slice.to_string());
@@ -97,7 +112,7 @@ fn make_bubble(s: String, width: usize, think: bool) -> String {
     for (index, line) in result.iter_mut().enumerate() {
         match index {
             0 => match reslen {
-                1 => *line = vec![cowb.sleft, line, cowb.sright].join(" "),
+                0 | 1 => *line = vec![cowb.sleft, line, cowb.sright].join(" "),
                 _ => {
                     *line = vec![cowb.topleft, line, cowb.topright].join(" ")
                 }
@@ -152,34 +167,160 @@ fn main() {
         .author("Matt Smith. <matthew.smith491@gmail.com>")
         .arg(Arg::with_name("MESSAGE")
             .help("Message for cow to say")
-            .required(true)
             .multiple(true))
-        .arg(Arg::with_name("f")
+        .arg(Arg::with_name("cow")
             .short("f")
             .value_name("COW")
             .help("Which cow should say"))
-        .arg(Arg::with_name("W")
+        .arg(Arg::with_name("width")
             .short("W")
             .value_name("WIDTH")
             .help("Max width of cow text bubble"))
+        .arg(Arg::with_name("nowrap")
+            .short("n")
+            .help("Disable word wrap"))
+        .arg(Arg::with_name("borg")
+            .short("b")
+            .help("Borg Cow"))
+        .arg(Arg::with_name("dead")
+            .short("d")
+            .help("Dead Cow"))
+        .arg(Arg::with_name("greedy")
+            .short("g")
+            .help("Greedy Cow"))
+        .arg(Arg::with_name("paranoid")
+            .short("p")
+            .help("Paranoid Cow"))
+        .arg(Arg::with_name("stoned")
+            .short("s")
+            .help("Stoned Cow"))
+        .arg(Arg::with_name("tired")
+            .short("t")
+            .help("Tired Cow"))
+        .arg(Arg::with_name("wired")
+            .short("w")
+            .help("Wired Cow"))
+        .arg(Arg::with_name("youthful")
+            .short("y")
+            .help("Youthful Cow"))
+        .arg(Arg::with_name("custom")
+            .short("e")
+            .value_name("EYE_STRING")
+            .help("Custom Eyes"))
+        .arg(Arg::with_name("tongue")
+            .short("T")
+            .value_name("TONGUE_STRING")
+            .help("Custom Tongue"))
+        .arg(Arg::with_name("list")
+            .short("l")
+            .help("List Cows"))
+        .arg(Arg::with_name("random")
+            .long("random")
+            .help("Choose random cow"))
         .get_matches();
 
-    let cow = matches.value_of("f").unwrap_or("default");
-    let width = matches.value_of("W").unwrap_or("40").parse::<usize>().unwrap();
-    let message_vals = matches.values_of("MESSAGE").unwrap().collect::<Vec<_>>();
-    let message = message_vals.join(" ");
+    match matches.is_present("list") {
+        true => {
+            let list = list_cows();
+            println!("{:?}", list);
+            std::process::exit(0);
+        }
+        false => (),
+    };
 
-    let think;
 
-    match env::args().collect::<Vec<_>>()[0].ends_with("cowthink") {
-        true => think = true,
-        false => think = false,
+    let mut cow = matches.value_of("cow").unwrap_or("default").to_owned();
+
+    cow = match matches.is_present("random") {
+
+        true => {
+            let mut rng = thread_rng();
+            let cows = list_cows();
+            sample(&mut rng, cows, 1).first().unwrap().to_owned()
+        }
+        false => cow
+    };
+
+    let width = matches.value_of("width").unwrap_or("40").parse::<usize>().unwrap();
+    let wrap = !matches.is_present("nowrap");
+    let message_vals = match matches.values_of("MESSAGE") {
+        Some(x) => x.collect::<Vec<_>>(),
+        None => vec![""]
+    };
+    let mut message = message_vals.join(" ");
+
+    message = match &message[..] {
+        "" => {
+            let mut buffer = String::new();
+            io::stdin().read_to_string(&mut buffer).unwrap();
+            buffer.trim_right().to_string()
+        },
+        _ => message
+    };
+
+    let tongue = matches.value_of("tongue").unwrap_or(" ");
+
+    // Cow Eyes
+    let borg = matches.is_present("borg");
+    let dead = matches.is_present("dead");
+    let greedy = matches.is_present("greedy");
+    let paranoid = matches.is_present("paranoid");
+    let stoned = matches.is_present("stoned");
+    let tired = matches.is_present("tired");
+    let wired = matches.is_present("wired");
+    let youthful = matches.is_present("youthful");
+    let custom = matches.value_of("custom").unwrap_or("");
+    let mut custombool = false;
+
+    if custom != "" {
+        custombool = true;
     }
 
-    let fmt = &format!("src/cows/{}.cow", &cow);
-    let mut cowbody = str::from_utf8(assets::get(&fmt).unwrap()).unwrap().to_string();
-    cowbody = format_animal(cowbody, "\\", "  ");
-    println!("{}", make_bubble(message.to_string(), width, think));
-    println!("{}", cowbody);
+
+    let eyes = [(borg, "=="),
+                (dead, "xx"),
+                (greedy, "$$"),
+                (paranoid, "@@"),
+                (stoned, "**"),
+                (tired, "--"),
+                (wired, "OO"),
+                (youthful, ".."),
+                (custombool, custom),
+                (true, "oo")]
+                    .iter()
+                    .filter(|&x| x.0)
+                    .collect::<Vec<_>>()[0].1;
+
+    let think;
+    let voice;
+
+    match env::args().collect::<Vec<_>>()[0].ends_with("cowthink") {
+        true => {
+            think = true;
+            voice = "o"
+        }
+        false => {
+            think = false;
+            voice = "\\";
+        }
+    }
+
+    let mut cowbody = String::new();
+
+    match cow.contains(".cow") {
+        true => {
+            let mut f = File::open(&cow).unwrap();
+            f.read_to_string(&mut cowbody).expect(
+                &format!("Couldn't read cowfile {}", cow));
+        },
+        false => {
+            let fmt = &format!("src/cows/{}.cow", &cow);
+            cowbody = str::from_utf8(assets::get(&fmt).unwrap()).unwrap().to_string();
+        }
+    }
+
+
+    println!("{}", make_bubble(message.to_string(), width, think, wrap));
+    println!("{}", format_animal(cowbody, voice, eyes, tongue));
 
 }

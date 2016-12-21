@@ -6,6 +6,11 @@ build = "build.rs"
 
 [dependencies]
 clap = "~2.19.2"
+rand = "~0.3"
+
+[[bin]]
+name = "cowsay"
+path = "src/main.rs"
 
 [[bin]]
 name = "cowthink"
