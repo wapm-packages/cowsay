@@ -22,7 +22,43 @@ $ wapm run cowsay "This is a test run"
                 ||     ||
 ```
 
-## Included Cowfile
+Print help
+
+```shell
+$ wapm run cowsay -h
+cowsay v0.1.0
+Syrus A. <syrus@wasmer.io>
+
+USAGE:
+    wapm run cowsay [FLAGS] [OPTIONS] [MESSAGE]...
+
+FLAGS:
+    -b               Borg Cow
+    -d               Dead Cow
+    -g               Greedy Cow
+    -h, --help       Prints help information
+    -l, --list       List Cows
+    -n               Disable word wrap
+    -p               Paranoid Cow
+        --random     Choose random cow
+    -s               Stoned Cow
+    -t               Tired Cow
+    -V, --version    Prints version information
+    -w               Wired Cow
+    -y               Youthful Cow
+
+OPTIONS:
+    -f <COW>                  Which cow should say
+    -e <EYE_STRING>           Custom Eyes
+    -T <TONGUE_STRING>        Custom Tongue
+    -W <WIDTH>                Max width of cow text bubble
+
+ARGS:
+    <MESSAGE>...    Message for cow to say
+```
+
+
+### Included Cowfile
 
 ```shell
 $ wapm run cowsay -f tux "This is a test run"
@@ -40,7 +76,7 @@ $ wapm run cowsay -f tux "This is a test run"
     \___)=(___/
 ```
 
-## Custom Cowfile
+### Custom Cowfile
 
 ```shell
 $ wapm run cowsay -f src/cows/elephant.cow "This is a test run"
