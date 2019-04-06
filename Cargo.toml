@@ -7,6 +7,12 @@ authors = ["Syrus Akbary <syrus@wasmer.io>"]
 clap = "2.32.0"
 rand = "~0.3"
 include_dir="0.2.1"
+wee_alloc = "*"
+
+[profile.release]
+lto="fat"
+opt-level =  "s"
+codegen-units = 1
 
 # [[bin]]
 # name = "cowsay"
