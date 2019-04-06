@@ -1,6 +1,6 @@
 # Cowsay
 
-You can install cowsay by doing:
+You can install cowsay with:
 
 ```shell
 wapm install cowsay
@@ -10,8 +10,8 @@ wapm install cowsay
 
 ## Running
 
-```
-wapm run cowsay "This is a test run"
+```shell
+$ wapm run cowsay "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -24,8 +24,8 @@ wapm run cowsay "This is a test run"
 
 ## Included Cowfile
 
-```
-wapm run cowsay -f tux "This is a test run"
+```shell
+$ wapm run cowsay -f tux "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -43,7 +43,7 @@ wapm run cowsay -f tux "This is a test run"
 ## Custom Cowfile
 
 ```shell
-wapm run cowsay -f src/cows/elephant.cow "This is a test run"
+$ wapm run cowsay -f src/cows/elephant.cow "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -59,9 +59,15 @@ wapm run cowsay -f src/cows/elephant.cow "This is a test run"
         |m|   |m|
 ```
 
-# Building from Source
+## Building from Source
 
-If you want to build the WebAssembly binary by yourself, you can do:
+First, you will need the WASI target installed in your Rust system:
+
+```shell
+rustup target add wasm32-unknown-wasi --toolchain nightly
+```
+
+Once WASI is available, you can build the WebAssembly binary by yourself with:
 
 ```shell
 cargo +nightly build --release --target wasm32-unknown-wasi
@@ -69,9 +75,11 @@ cargo +nightly build --release --target wasm32-unknown-wasi
 
 This will create a new file located at `target/wasm32-unknown-wasi/release/cowsay.wasm`.
 
-Once that file is created, you can upload it to wapm, or execute it with wasmer:
+When the wasm file is created you can upload it to wapm or execute it with wasmer:
 
 ```shell
+wapm publish
+# OR
 wasmer run  target/wasm32-unknown-wasi/release/cowsay.wasm "Hello World"
 ```
 
