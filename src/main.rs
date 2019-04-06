@@ -1,5 +1,7 @@
 extern crate clap;
 extern crate rand;
+#[macro_use]
+extern crate include_dir;
 
 use std::str;
 use std::env;
@@ -8,7 +10,9 @@ use std::fs::File;
 use clap::{App, Arg};
 use rand::{thread_rng, sample};
 
-mod assets;
+use include_dir::Dir;
+
+const PROJECT_DIR: Dir = include_dir!("src/cows/");
 
 
 struct CowBubble {
@@ -24,9 +28,8 @@ struct CowBubble {
 
 
 fn list_cows() -> Vec<String> {
-    assets::list()
-        .iter()
-        .map(|x| x.split("/").last().unwrap().replace(".cow", ""))
+    PROJECT_DIR.files().iter()
+        .map(|file| file.path.replace(".cow", ""))
         .collect::<Vec<String>>()
 }
 
@@ -161,7 +164,6 @@ fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
 }
 
 fn main() {
-
     let matches = App::new("rust-cowsay")
         .version("v0.1.0-pre-alpha")
         .author("Matt Smith. <matthew.smith491@gmail.com>")
@@ -213,6 +215,7 @@ fn main() {
             .help("Custom Tongue"))
         .arg(Arg::with_name("list")
             .short("l")
+            .long("list")
             .help("List Cows"))
         .arg(Arg::with_name("random")
             .long("random")
@@ -227,7 +230,6 @@ fn main() {
         }
         false => (),
     };
-
 
     let mut cow = matches.value_of("cow").unwrap_or("default").to_owned();
 
@@ -293,7 +295,6 @@ fn main() {
 
     let think;
     let voice;
-
     match env::args().collect::<Vec<_>>()[0].ends_with("cowthink") {
         true => {
             think = true;
@@ -314,8 +315,9 @@ fn main() {
                 &format!("Couldn't read cowfile {}", cow));
         },
         false => {
-            let fmt = &format!("src/cows/{}.cow", &cow);
-            cowbody = str::from_utf8(assets::get(&fmt).unwrap()).unwrap().to_string();
+            let fmt = &format!("{}.cow", &cow);
+            let file = PROJECT_DIR.get_file(&fmt).expect(&format!("Can't find the cow file {}", cow));
+            cowbody = str::from_utf8(file.contents).unwrap().to_string();
         }
     }
 

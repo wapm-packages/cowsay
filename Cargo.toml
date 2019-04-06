@@ -1,17 +1,22 @@
 [package]
-name = "rust-cowsay"
+name = "cowsay"
 version = "0.1.0"
-authors = ["Matt Smith <matthew.smith491@gmail.com>"]
-build = "build.rs"
+authors = ["Syrus Akbary <syrus@wasmer.io>"]
 
 [dependencies]
-clap = "~2.19.2"
+clap = "2.32.0"
 rand = "~0.3"
+include_dir="0.2.1"
 
-[[bin]]
-name = "cowsay"
-path = "src/main.rs"
+# [[bin]]
+# name = "cowsay"
+# path = "src/main.rs"
 
-[[bin]]
-name = "cowthink"
-path = "src/main.rs"
+# [[bin]]
+# name = "cowthink"
+# path = "src/main.rs"
+
+# [source]
+
+# [source.same-file]
+# directory = "./same-file"
