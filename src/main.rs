@@ -90,19 +90,16 @@ fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
                 break;
             }
 
-            let localwidth;
             let mut subindex = index + width;
-            'b: loop {
+            let localwidth = loop {
                 match (&s[index..subindex]).ends_with(" ") {
-                    true => {
-                        localwidth = subindex - index;
-                        break 'b;
-                    }
-                    false => {
-                        subindex -= 1;
-                    }
+                    true => break subindex - index,
+                    false => subindex -= 1,
                 }
-            }
+                if index == subindex {
+                    break width;
+                }
+            };
             let slice = &s[index..index + localwidth];
             result.push(slice.to_string());
             index += localwidth;
