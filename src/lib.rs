@@ -77,44 +77,50 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
 
     // Linewrap
     let mut longest = 0;
-    if wrap {
-        let mut line = String::with_capacity(width);
-        let mut line_width = 0;
-        for word in s.split_word_bounds() {
-            let word_width = UnicodeWidthStr::width(word);
-            if line_width + word_width <= width {
-                line += word;
-                line_width += word_width;
-            } else if word_width < width {
-                result.push((line, line_width));
-                longest = std::cmp::max(line_width, longest);
-                line = String::with_capacity(width);
-                line_width = 0;
-                if ! word.trim_end().is_empty() {
+    for input_line in s.lines() {
+        if wrap {
+            let mut line = String::with_capacity(width);
+            let mut line_width = 0;
+            for word in input_line.split_word_bounds() {
+                let word_width = UnicodeWidthStr::width(word);
+                if line_width + word_width <= width {
                     line += word;
-                    line_width = word_width;
-                }
-            } else {
-                for gc in word.graphemes(true) {
-                    let gc_width = UnicodeWidthStr::width(gc);
-                    if line_width == 0 || gc_width + line_width <= width {
-                        line += gc;
-                        line_width += gc_width;
-                    } else {
-                        result.push((line, line_width));
-                        longest = std::cmp::max(line_width, longest);
-                        line = String::with_capacity(width);
-                        line += gc;
-                        line_width = gc_width;
+                    line_width += word_width;
+                } else if word_width < width {
+                    result.push((line, line_width));
+                    longest = std::cmp::max(line_width, longest);
+                    line = String::with_capacity(width);
+                    line_width = 0;
+                    if ! word.trim_end().is_empty() {
+                        line += word;
+                        line_width = word_width;
+                    }
+                } else {
+                    for gc in word.graphemes(true) {
+                        let gc_width = UnicodeWidthStr::width(gc);
+                        if line_width == 0 || gc_width + line_width <= width {
+                            line += gc;
+                            line_width += gc_width;
+                        } else {
+                            result.push((line, line_width));
+                            longest = std::cmp::max(line_width, longest);
+                            line = String::with_capacity(width);
+                            line += gc;
+                            line_width = gc_width;
+                        }
                     }
                 }
             }
+            result.push((line, line_width));
+            longest = std::cmp::max(line_width, longest);
+        } else {
+            let width = input_line.width();
+            longest = width;
+            result.push((input_line.to_string(), width));
         }
-        result.push((line, line_width));
-        longest = std::cmp::max(line_width, longest);
-    } else {
-        let width = s.width();
-        result.push((s, width));
+    }
+    if result.len() == 0 {
+        result.push(("".to_string(), 0));
     }
 
     // Pad to longest line
