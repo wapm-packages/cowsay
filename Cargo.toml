@@ -8,6 +8,8 @@ clap = "2.32.0"
 rand = "~0.3"
 include_dir="0.2.1"
 wee_alloc = "*"
+unicode-segmentation = "1.7"
+unicode-width = "0.1"
 
 [profile.release]
 lto="fat"
