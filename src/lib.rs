@@ -82,9 +82,10 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
             let mut line = String::with_capacity(width);
             let mut line_width = 0;
             for word in input_line.split_word_bounds() {
-                let word_width = UnicodeWidthStr::width(word);
+                let word = word.replace("\t", "    ");
+                let word_width = word.width();
                 if line_width + word_width <= width {
-                    line += word;
+                    line += &word;
                     line_width += word_width;
                 } else if word_width < width {
                     result.push((line, line_width));
@@ -92,7 +93,7 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
                     line = String::with_capacity(width);
                     line_width = 0;
                     if ! word.trim_end().is_empty() {
-                        line += word;
+                        line += &word;
                         line_width = word_width;
                     }
                 } else {
