@@ -1,8 +1,5 @@
-extern crate cowsay;
-extern crate clap;
-extern crate rand;
 use clap::{App, Arg};
-use rand::{sample, thread_rng};
+use rand::{seq::SliceRandom, thread_rng};
 use cowsay::*;
 use std::env;
 use std::io::{self, Read};
@@ -79,11 +76,7 @@ fn main() {
     let mut cow = matches.value_of("cow").unwrap_or("default").to_owned();
 
     cow = match matches.is_present("random") {
-        true => {
-            let mut rng = thread_rng();
-            let cows = list_cows();
-            sample(&mut rng, cows, 1).first().unwrap().to_owned()
-        }
+        true => list_cows().choose(&mut thread_rng()).unwrap().to_owned(),
         false => cow,
     };
 
@@ -103,7 +96,7 @@ fn main() {
         "" => {
             let mut buffer = String::new();
             io::stdin().read_to_string(&mut buffer).unwrap();
-            buffer.trim_right().to_string()
+            buffer.trim_end().to_string()
         }
         _ => message,
     };

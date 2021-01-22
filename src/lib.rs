@@ -1,8 +1,5 @@
 #[macro_use]
 extern crate include_dir;
-extern crate wee_alloc;
-extern crate unicode_segmentation;
-extern crate unicode_width;
 
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
@@ -39,7 +36,7 @@ pub fn format_animal(s: String, thoughts: &str, eyes: &str, tongue: &str) -> Str
         .filter(|&x| !x.starts_with("##") && !x.contains("EOC"))
         .collect::<Vec<_>>()
         .join("\n")
-        .trim_right()
+        .trim_end()
         .replace("$eyes", eyes)
         .replace("$thoughts", thoughts)
         .replace("$tongue", tongue)
@@ -127,7 +124,7 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
 
     // Bookend lines with bubble chars
     let reslen = result.len() - 1;
-    let mut result = result.iter_mut().enumerate().map(|(index, (line, _))| {
+    let result = result.iter_mut().enumerate().map(|(index, (line, _))| {
         let line = match index {
             0 => match reslen {
                 0 | 1 => vec![cowb.sleft, line, cowb.sright].join(" "),

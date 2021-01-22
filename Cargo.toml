@@ -2,10 +2,11 @@
 name = "cowsay"
 version = "0.1.0"
 authors = ["Syrus Akbary <syrus@wasmer.io>"]
+edition = "2018"
 
 [dependencies]
 clap = "2.32.0"
-rand = "~0.3"
+rand = "~0.8"
 include_dir="0.2.1"
 wee_alloc = "*"
 unicode-segmentation = "1.7"
