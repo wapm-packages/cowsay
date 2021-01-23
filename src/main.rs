@@ -1,6 +1,6 @@
 use clap::{App, Arg};
-use rand::{seq::SliceRandom, thread_rng};
 use cowsay::*;
+use rand::{seq::SliceRandom, thread_rng};
 use std::env;
 use std::io::{self, Read};
 use std::str;
@@ -167,6 +167,6 @@ fn main() {
         }
     }
 
-    println!("{}", make_bubble(message.to_string(), width, think, wrap));
+    println!("{}", make_bubble(message, width, think, wrap));
     println!("{}", format_animal(cowbody, voice, eyes, tongue));
 }

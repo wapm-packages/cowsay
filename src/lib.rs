@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate include_dir;
 
+use std::iter::once;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
@@ -32,7 +33,7 @@ pub fn list_cows() -> Vec<String> {
 }
 
 pub fn format_animal(s: String, thoughts: &str, eyes: &str, tongue: &str) -> String {
-    s.split("\n")
+    s.split('\n')
         .filter(|&x| !x.starts_with("##") && !x.contains("EOC"))
         .collect::<Vec<_>>()
         .join("\n")
@@ -46,8 +47,6 @@ pub fn format_animal(s: String, thoughts: &str, eyes: &str, tongue: &str) -> Str
 
 pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
     let mut result = Vec::new();
-    let mut top = vec![" "];
-    let mut bottom = vec![" "];
     let topc = "_";
     let bottomc = "-";
     let pad = " ";
@@ -92,7 +91,7 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
                     longest = std::cmp::max(line_width, longest);
                     line = String::with_capacity(width);
                     line_width = 0;
-                    if ! word.trim_end().is_empty() {
+                    if !word.trim_end().is_empty() {
                         line += &word;
                         line_width = word_width;
                     }
@@ -120,7 +119,7 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
             result.push((input_line.to_string(), width));
         }
     }
-    if result.len() == 0 {
+    if result.is_empty() {
         result.push(("".to_string(), 0));
     }
 
@@ -131,37 +130,28 @@ pub fn make_bubble(s: String, width: usize, think: bool, wrap: bool) -> String {
 
     // Bookend lines with bubble chars
     let reslen = result.len() - 1;
-    let result = result.iter_mut().enumerate().map(|(index, (line, _))| {
-        let line = match index {
-            0 => match reslen {
-                0 | 1 => vec![cowb.sleft, line, cowb.sright].join(" "),
-                _ => vec![cowb.topleft, line, cowb.topright].join(" "),
-            },
-            x if x < reslen => vec![cowb.midleft, line, cowb.midright].join(" "),
-            y if y == reslen => match reslen {
-                1 => vec![cowb.sleft, line, cowb.sright].join(" "),
-                _ => vec![cowb.botleft, line, cowb.botright].join(" "),
-            },
-            _ => panic!("Whoops!"),
-        };
-        line
-    }).collect::<Vec<_>>();
-
-    let mut top_bottom = longest + 2;
-    loop {
-        match top_bottom > 0 {
-            false => break,
-            true => {
-                top.push(topc);
-                bottom.push(bottomc);
-                top_bottom -= 1;
+    let result = result
+        .iter_mut()
+        .enumerate()
+        .map(|(index, (line, _))|
+            match index {
+                0 => match reslen {
+                    0 | 1 => vec![cowb.sleft, line, cowb.sright].join(" "),
+                    _ => vec![cowb.topleft, line, cowb.topright].join(" "),
+                },
+                x if x < reslen => vec![cowb.midleft, line, cowb.midright].join(" "),
+                y if y == reslen => match reslen {
+                    1 => vec![cowb.sleft, line, cowb.sright].join(" "),
+                    _ => vec![cowb.botleft, line, cowb.botright].join(" "),
+                },
+                _ => panic!("Whoops!"),
             }
-        }
-    }
-    use std::iter::once;
-    once(top.join(""))
+        )
+        .collect::<Vec<_>>();
+
+    once(format!(" {}", topc.repeat(longest + 2)))
         .chain(result.into_iter())
-        .chain(once(bottom.join("")))
+        .chain(once(format!(" {}", bottomc.repeat(longest + 2))))
         .collect::<Vec<_>>()
         .join("\n")
 }
