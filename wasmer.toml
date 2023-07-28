@@ -1,9 +1,10 @@
 [package]
-name = "cowsay"
-version = "0.2.0"
+name = "syrusakbary/cowsay"
+version = "0.3.0"
 description = "cowsay is a program that generates ASCII pictures of a cow with a message"
 readme = "README.md"
 repository = "https://github.com/wapm-packages/cowsay"
+entrypoint = "cowsay"
 
 [[module]]
 name = "cowsay"

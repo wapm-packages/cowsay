@@ -3,7 +3,7 @@
 You can install cowsay with:
 
 ```shell
-wapm install cowsay
+wasmer run cowsay hello
 ```
 
 *Note: This project is a fork of the original Rust implementation: [rust-cowsay](https://github.com/msmith491/rust-cowsay).*
@@ -11,7 +11,7 @@ wapm install cowsay
 ## Running
 
 ```shell
-$ wapm run cowsay "This is a test run"
+$ wasmer run cowsay "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -25,12 +25,12 @@ $ wapm run cowsay "This is a test run"
 Print help
 
 ```shell
-$ wapm run cowsay -h
+$ wasmer run cowsay -h
 cowsay v0.1.0
 Syrus A. <syrus@wasmer.io>
 
 USAGE:
-    wapm run cowsay [FLAGS] [OPTIONS] [MESSAGE]...
+    wasmer run cowsay [FLAGS] [OPTIONS] [MESSAGE]...
 
 FLAGS:
     -b               Borg Cow
@@ -61,7 +61,7 @@ ARGS:
 ### Included Cowfile
 
 ```shell
-$ wapm run cowsay -f tux "This is a test run"
+$ wasmer run cowsay -f tux "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -79,7 +79,7 @@ $ wapm run cowsay -f tux "This is a test run"
 ### Custom Cowfile
 
 ```shell
-$ wapm run cowsay -f src/cows/elephant.cow "This is a test run"
+$ wasmer run cowsay -f src/cows/elephant.cow "This is a test run"
  ___________________
 < This is a test run >
  -------------------
@@ -111,12 +111,12 @@ cargo build --release --target wasm32-wasi
 
 This will create a new file located at `target/wasm32-wasi/release/cowsay.wasm`.
 
-When the wasm file is created you can upload it to wapm or execute it with wasmer:
+When the wasm file is created you can upload it to wasmer or execute it with wasmer:
 
 ```shell
-wapm publish
+wasmer publish
 # OR
-wasmer run target/wasm32-wasi/release/cowsay.wasm "Hello World"
+wasmer run . "Hello World"
 ```
 
 You can also build a native executable with
